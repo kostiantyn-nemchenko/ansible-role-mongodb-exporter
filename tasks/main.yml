@@ -1,0 +1,88 @@
+---
+- name: Add system group
+  group:
+    name: "{{ mongodb_exporter_system_user }}"
+
+- name: Add system user
+  user:
+    name: "{{ mongodb_exporter_system_user }}"
+    group: "{{ mongodb_exporter_system_group }}"
+
+- name: Install dependencies if any
+  package:
+    name: "{{ item.name }}"
+    state: "{{ item.state }}"
+    update_cache: yes
+  with_items:
+    - "{{ mongodb_exporter_system_packages }}"
+  when: mongodb_exporter_system_packages |length > 0
+
+- name: Download binary
+  unarchive:
+    src: "{{ mongodb_exporter_release_url }}"
+    dest: "{{ mongodb_exporter_bin_dir }}"
+    owner: "{{ mongodb_exporter_system_user }}"
+    group: "{{ mongodb_exporter_system_group }}"
+    mode: 0750
+    remote_src: yes
+  notify:
+    - restart mongodb exporter
+
+- name: Ensure directories for SSL certs and key are present
+  file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ mongodb_exporter_system_user }}"
+    group: "{{ mongodb_exporter_system_group }}"
+    mode: "{{ item.mode }}"
+  with_items:
+    - { 
+        path: "{{ mongodb_exporter_mongodb_tls_ca.dest |dirname }}",
+        mode: "0750" 
+      }
+    - { 
+        path: "{{ mongodb_exporter_mongodb_tls_ca.dest |dirname }}",
+        mode: "0750" 
+      }
+    - { 
+        path: "{{ mongodb_exporter_mongodb_tls_private_key.dest |dirname }}",
+        mode: "0750"
+      }            
+
+- name: Manage SSL key and certificates
+  no_log: true
+  copy:
+    dest: "{{ item.dest }}"
+    content: "{{ item.content }}"
+    owner: "{{ mongodb_exporter_system_user }}" 
+    group: "{{ mongodb_exporter_system_group }}"
+    mode: "{{ item.mode }}"
+  when: mongodb_exporter_mongodb_tls and ( item.dest and item.content )
+  with_items:
+    - { 
+        dest: "{{ mongodb_exporter_mongodb_tls_cert.dest }}", 
+        content: "{{ mongodb_exporter_mongodb_tls_cert.content }}", 
+        mode: "0644" 
+      }
+    - { 
+        dest: "{{ mongodb_exporter_mongodb_tls_private_key.dest }}", 
+        content: "{{ mongodb_exporter_mongodb_tls_private_key.content }}", 
+        mode: "0600" 
+      }
+    - { 
+        dest: "{{ mongodb_exporter_mongodb_tls_ca.dest }}", 
+        content: "{{ mongodb_exporter_mongodb_tls_ca.content }}", 
+        mode: "0644" 
+      }
+  notify:
+    - restart mongodb exporter
+
+- name: Create init file
+  template:
+    src: mongodb_exporter.service.j2
+    dest: /etc/systemd/system/mongodb_exporter.service
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart mongodb exporter
