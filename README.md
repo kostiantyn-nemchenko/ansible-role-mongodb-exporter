@@ -17,8 +17,8 @@ An Ansible role which installs and configures Prometheus MongoDB Exporter by Per
       mode: "0644"
       content: |
         -----BEGIN CERTIFICATE-----
-        content 
-        of the public 
+        content
+        of the public
         certificate
         -----END CERTIFICATE-----
     ```
@@ -110,6 +110,8 @@ mongodb_exporter_mongodb_max_connections: 1
 mongodb_exporter_mongodb_socket_timeout: 3s
 # Amount of time an operation with this session will wait before returning an error in case a connection to a usable server can't be established
 mongodb_exporter_mongodb_sync_timeout: 1m
+# Specifies the database in which the user is created
+mongodb_exporter_authentification_database: ""
 
 # Currently ignored
 mongodb_exporter_groups_enabled: ""
