@@ -43,11 +43,13 @@ ExecStart={{ mongodb_exporter_bin_dir.dest }}/mongodb_exporter \
                 --mongodb.tls-disable-hostname-validation \
               {% endif %}
             {% endif %}
+	    {% if mongodb_exporter_version is version('0.11.0', '<') %}
                 --mongodb.max-connections={{ mongodb_exporter_mongodb_max_connections }} \
                 --mongodb.socket-timeout={{ mongodb_exporter_mongodb_socket_timeout }} \
                 --mongodb.sync-timeout={{ mongodb_exporter_mongodb_sync_timeout }} \
                 --mongodb.authentification-database={{ mongodb_exporter_authentification_database }} \
                 --groups.enabled={{ mongodb_exporter_groups_enabled }}
+	    {% endif %}
 
 [Install]
 WantedBy=multi-user.target

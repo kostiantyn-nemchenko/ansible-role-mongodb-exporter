@@ -1,6 +1,6 @@
 ---
 # Exporter version to install
-mongodb_exporter_version: 0.7.1
+mongodb_exporter_version: 0.11.0
 # Exporter repository URL
 mongodb_exporter_base_url: https://github.com/percona/mongodb_exporter
 # Exporter download URL
