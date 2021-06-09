@@ -1,4 +1,6 @@
 ---
+- import_tasks: preflight.yml
+
 - name: Install dependencies, if any
   package:
     name: "{{ item.name }}"
