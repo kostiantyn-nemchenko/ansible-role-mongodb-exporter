@@ -13,11 +13,9 @@ Group={{ mongodb_exporter_system_groups[0] }}
 ExecStart={{ mongodb_exporter_bin_dir.dest }}/mongodb_exporter \
                 --web.listen-address={{ mongodb_exporter_web_listen_address }} \
                 --web.telemetry-path={{ mongodb_exporter_web_telemetry_path }} \
-                --log.level={{ mongodb_exporter_log_level }} \
             {% if 'MONGODB_URI' not in mongodb_exporter_env_vars |map(attribute='name') |list %}
                 --mongodb.uri={{ mongodb_exporter_mongodb_uri }} \
             {% endif %}
-
 	    {% if mongodb_exporter_version is version('0.20.0', '>') %}
             {% if mongodb_exporter_compatible_mode %}
                 --compatible-mode \
@@ -30,7 +28,7 @@ ExecStart={{ mongodb_exporter_bin_dir.dest }}/mongodb_exporter \
             {% endif %}
             {% if mongodb_exporter_global_conn_pool %}
                 --mongodb.global-conn-pool \
-            {% endif %}#
+            {% endif %}
             {% if mongodb_exporter_disable_diagnosticdata %}
                 --disable.diagnosticdata \
             {% endif %}
@@ -38,7 +36,6 @@ ExecStart={{ mongodb_exporter_bin_dir.dest }}/mongodb_exporter \
                 --disable.replicasetstatus \
             {% endif %}
 	    {% endif %}
-
 	    {% if mongodb_exporter_version is version('0.20.0', '<') %}
             {% if mongodb_exporter_collect_database %}
                 --collect.database \
@@ -69,7 +66,6 @@ ExecStart={{ mongodb_exporter_bin_dir.dest }}/mongodb_exporter \
               {% endif %}
             {% endif %}
 	    {% endif %}
-
 	    {% if mongodb_exporter_version is version('0.11.0', '<') %}
                 --mongodb.max-connections={{ mongodb_exporter_mongodb_max_connections }} \
                 --mongodb.socket-timeout={{ mongodb_exporter_mongodb_socket_timeout }} \
@@ -77,6 +73,7 @@ ExecStart={{ mongodb_exporter_bin_dir.dest }}/mongodb_exporter \
                 --mongodb.authentification-database={{ mongodb_exporter_authentification_database }} \
                 --groups.enabled={{ mongodb_exporter_groups_enabled }}
 	    {% endif %}
+                --log.level={{ mongodb_exporter_log_level }}
 
 SyslogIdentifier=mysqld_exporter
 Restart=always

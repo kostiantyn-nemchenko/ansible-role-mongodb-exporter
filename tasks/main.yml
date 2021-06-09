@@ -105,6 +105,18 @@
   notify:
     - restart mongodb exporter
 
+- name: Symlink binary (version > 0.20.0)
+  file:
+    src: "{{ mongodb_exporter_bin_dir.dest }}/mongodb_exporter-{{ mongodb_exporter_version }}.{{ ansible_system |lower }}-amd64/mongodb_exporter"
+    dest: "{{ mongodb_exporter_bin_dir.dest }}/mongodb_exporter"
+    owner: "{{ mongodb_exporter_system_user }}"
+    group: "{{ mongodb_exporter_system_groups[0] }}"
+    state: link
+    mode: 0750
+  when: "{{ mongodb_exporter_version is version('0.20.0', '>') }}"
+  notify:
+    - restart mongodb exporter
+
 - name: Create drop-in systemd file with preset environment variables
   template:
     src: mongodb_exporter.environment.conf.j2
