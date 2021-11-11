@@ -20,8 +20,10 @@
   user:
     name: "{{ mongodb_exporter_system_user }}"
     groups: "{{ mongodb_exporter_system_groups }}"
+    shell: "/usr/sbin/nologin"
+    createhome: false
 
-- name: Ensure directories for binary, SSL key/certs and env file are present
+- name: Ensure directories for binary and env file are present
   file:
     path: "{{ item.path }}"
     state: directory
@@ -36,29 +38,39 @@
         mode: "{{ mongodb_exporter_bin_dir.mode }}"
       }
     - {
-        path: "{{ mongodb_exporter_mongodb_tls_ca.dest |dirname }}",
-        owner: "{{ mongodb_exporter_mongodb_tls_ca.owner }}",
-        group: "{{ mongodb_exporter_mongodb_tls_ca.group }}",
-        mode: "0755"
-      }
-    - {
-        path: "{{ mongodb_exporter_mongodb_tls_cert.dest |dirname }}",
-        owner: "{{ mongodb_exporter_mongodb_tls_cert.owner }}",
-        group: "{{ mongodb_exporter_mongodb_tls_cert.group }}",
-        mode: "0755"
-      }
-    - {
-        path: "{{ mongodb_exporter_mongodb_tls_private_key.dest |dirname }}",
-        owner: "{{ mongodb_exporter_mongodb_tls_private_key.owner }}",
-        group: "{{ mongodb_exporter_mongodb_tls_private_key.group }}",
-        mode: "0710"
-      }
-    - {
         path: "{{ mongodb_exporter_env_file.dest |dirname }}",
         owner: "{{ mongodb_exporter_env_file.owner }}",
         group: "{{ mongodb_exporter_env_file.group }}",
         mode: "0755"
       }
+
+- name: Ensure directories for SSL key/certs are present
+  file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+  with_items:
+    - {
+      path: "{{ mongodb_exporter_mongodb_tls_ca.dest |dirname }}",
+      owner: "{{ mongodb_exporter_mongodb_tls_ca.owner }}",
+      group: "{{ mongodb_exporter_mongodb_tls_ca.group }}",
+      mode: "0755"
+    }
+    - {
+      path: "{{ mongodb_exporter_mongodb_tls_cert.dest |dirname }}",
+      owner: "{{ mongodb_exporter_mongodb_tls_cert.owner }}",
+      group: "{{ mongodb_exporter_mongodb_tls_cert.group }}",
+      mode: "0755"
+    }
+    - {
+      path: "{{ mongodb_exporter_mongodb_tls_private_key.dest |dirname }}",
+      owner: "{{ mongodb_exporter_mongodb_tls_private_key.owner }}",
+      group: "{{ mongodb_exporter_mongodb_tls_private_key.group }}",
+      mode: "0710"
+    }
+  when: mongodb_exporter_mongodb_tls | bool
 
 - name: Ensure SSL key and certificates are present
   no_log: true
@@ -68,7 +80,7 @@
     owner: "{{ item.owner }}"
     group: "{{ item.group }}"
     mode: "{{ item.mode }}"
-  when: mongodb_exporter_mongodb_tls and ( item.dest and item.content )
+  when: (mongodb_exporter_mongodb_tls | bool) and ( item.dest and item.content )
   with_items:
     - {
         dest: "{{ mongodb_exporter_mongodb_tls_ca.dest }}",
@@ -97,25 +109,24 @@
 - name: Download precompiled binary
   unarchive:
     src: "{{ mongodb_exporter_release_url }}"
-    dest: "{{ mongodb_exporter_bin_dir.dest }}"
+    dest: "/tmp"
     owner: "{{ mongodb_exporter_system_user }}"
     group: "{{ mongodb_exporter_system_groups[0] }}"
     mode: 0750
     remote_src: yes
-  notify:
-    - restart mongodb exporter
 
-- name: Symlink binary (version > 0.20.0)
-  file:
-    src: "{{ mongodb_exporter_bin_dir.dest }}/mongodb_exporter-{{ mongodb_exporter_version }}.{{ ansible_system |lower }}-amd64/mongodb_exporter"
-    dest: "{{ mongodb_exporter_bin_dir.dest }}/mongodb_exporter"
-    owner: "{{ mongodb_exporter_system_user }}"
-    group: "{{ mongodb_exporter_system_groups[0] }}"
-    state: link
-    mode: 0750
-  when: "{{ mongodb_exporter_version is version('0.20.0', '>') }}"
-  notify:
-    - restart mongodb exporter
+- name: stat binary file
+  stat:
+    path: "/tmp/mongodb_exporter-{{ mongodb_exporter_version }}.{{ ansible_system |lower }}-amd64/mongodb_exporter"
+  register: binary
+
+- name: Rename binary (version > 0.20.0)
+  command:
+    argv:
+      - mv
+      - "/tmp/mongodb_exporter-{{ mongodb_exporter_version }}.{{ ansible_system |lower }}-amd64/mongodb_exporter"
+      - "{{ mongodb_exporter_bin_dir.dest }}/mongodb_exporter"
+  when: binary.stat.exists and (mongodb_exporter_version is version('0.20.0', '>'))
 
 - name: Create drop-in systemd file with preset environment variables
   template:
