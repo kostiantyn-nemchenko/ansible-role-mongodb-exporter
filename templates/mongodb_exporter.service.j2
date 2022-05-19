@@ -16,6 +16,39 @@ ExecStart={{ mongodb_exporter_bin_dir.dest }}/mongodb_exporter \
             {% if 'MONGODB_URI' not in mongodb_exporter_env_vars |map(attribute='name') |list %}
                 --mongodb.uri={{ mongodb_exporter_mongodb_uri }} \
             {% endif %}
+        {% if mongodb_exporter_version is version('0.31.0', '>=') %}
+            {% if mongodb_exporter_diagnosticdata_enabled %}
+                --collector.diagnosticdata  \
+            {% endif %}
+            {% if mongodb_exporter_replicasetstatus_enabled %}
+                --collector.replicasetstatus  \
+            {% endif %}
+            {% if mongodb_exporter_dbstats_enabled %}
+                --collector.dbstats  \
+            {% endif %}
+            {% if mongodb_exporter_topmetrics_enabled %}
+                --collector.topmetrics  \
+            {% endif %}
+            {% if mongodb_exporter_indexstats_enabled %}
+                --collector.indexstats  \
+            {% endif %}
+            {% if mongodb_exporter_collstats_enabled %}
+                --collector.collstats  \
+            {% endif %}
+            {% if mongodb_exporter_allcollectors_enabled %}
+                --collect-all  \
+            {% endif %}
+        {% endif %}
+        {% if mongodb_exporter_version is version('0.20.0', '>') %}
+        {% if mongodb_exporter_version is version('0.31.0', '<') %}
+            {% if mongodb_exporter_disable_diagnosticdata %}
+                --disable.diagnosticdata \
+            {% endif %}
+            {% if mongodb_exporter_disable_replicasetstatus %}
+                --disable.replicasetstatus \
+            {% endif %}
+        {% endif %}
+	    {% endif %}
 	    {% if mongodb_exporter_version is version('0.20.0', '>') %}
             {% if mongodb_exporter_compatible_mode %}
                 --compatible-mode \
@@ -29,13 +62,13 @@ ExecStart={{ mongodb_exporter_bin_dir.dest }}/mongodb_exporter \
             {% if mongodb_exporter_global_conn_pool %}
                 --mongodb.global-conn-pool \
             {% endif %}
-            {% if mongodb_exporter_disable_diagnosticdata %}
-                --disable.diagnosticdata \
+            {% if mongodb_exporter_collstats_list|length > 0 %}
+                --mongodb.collstats-colls={{mongodb_exporter_collstats_list}} \
             {% endif %}
-            {% if mongodb_exporter_disable_replicasetstatus %}
-                --disable.replicasetstatus \
+            {% if mongodb_exporter_indexstats_list|length > 0 %}
+                --mongodb.indexstats-colls={{mongodb_exporter_indexstats_list}} \
             {% endif %}
-	    {% endif %}
+        {% endif %}
 	    {% if mongodb_exporter_version is version('0.20.0', '<') %}
             {% if mongodb_exporter_collect_database %}
                 --collect.database \

@@ -1,6 +1,6 @@
 ---
 # Exporter version to install
-mongodb_exporter_version: 0.20.5
+mongodb_exporter_version: 0.31.2
 # Exporter repository URL
 mongodb_exporter_base_url: https://github.com/percona/mongodb_exporter
 # Exporter download URL
@@ -45,7 +45,31 @@ mongodb_exporter_log_level: warn
 # MongoDB URI in format [mongodb://][user:pass@]host1[:port1][,host2[:port2],...][/database][?options]
 mongodb_exporter_mongodb_uri: mongodb://127.0.0.1:27017/admin?ssl=false
 
-#### vairables > 0.20.0 ####
+#### variables >= 0.31.0 ####
+
+# Enable diagnosticdata collector
+mongodb_exporter_diagnosticdata_enabled: false
+# Enable replicasetstatus collector
+mongodb_exporter_replicasetstatus_enabled: false
+# Enable dbstats collector
+mongodb_exporter_dbstats_enabled: false
+# Enable topmetrics collector
+mongodb_exporter_topmetrics_enabled: false
+# Enable indexstats collector
+mongodb_exporter_indexstats_enabled: false
+# Enable collstats collector
+mongodb_exporter_collstats_enabled: false
+# Enable all collectors
+mongodb_exporter_allcollectors_enabled: false
+
+#### variables > 0.20.0 and < 0.31.0 ####
+
+# Disable collecting metrics from getDiagnosticData
+mongodb_exporter_disable_diagnosticdata: false
+# Disable collecting metrics from getDiagnosticData
+mongodb_exporter_disable_replicasetstatus: false
+
+#### variables > 0.20.0 ####
 
 # Exposes new metrics in the new and old format at the same time
 mongodb_exporter_compatible_mode: false
@@ -57,10 +81,12 @@ mongodb_exporter_direct_connect: false
 # Use global connection pool instead of creating new connection for each http
 # request.
 mongodb_exporter_global_conn_pool: true
-# Disable collecting metrics from getDiagnosticData
-mongodb_exporter_disable_diagnosticdata: false
-# Disable collecting metrics from getDiagnosticData
-mongodb_exporter_disable_replicasetstatus: false
+# List of comma separared databases.collections to get $collStats
+# e.g. "db1.col1,db2.col2"
+mongodb_exporter_collstats_list: ""
+# List of comma separared databases.collections to get $indexStats
+# e.g. "db1.col1,db2.col2"
+mongodb_exporter_indexstats_list: ""
 
 #### variables < 0.20.x ####
 
