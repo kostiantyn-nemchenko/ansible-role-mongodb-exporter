@@ -108,7 +108,7 @@ ExecStart={{ mongodb_exporter_bin_dir.dest }}/mongodb_exporter \
 	    {% endif %}
                 --log.level={{ mongodb_exporter_log_level }}
 
-SyslogIdentifier=mysqld_exporter
+SyslogIdentifier=mongodb_exporter
 Restart=always
 RestartSec=5
 
