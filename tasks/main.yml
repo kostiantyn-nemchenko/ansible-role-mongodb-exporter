@@ -139,6 +139,14 @@
   notify:
     - restart mongodb exporter
 
+- name: Ensure drop-in systemd file is absent if no environment variables are defined
+  file:
+    path: "{{ mongodb_exporter_env_file.dest }}"
+    state: absent
+  when: mongodb_exporter_env_vars |length == 0
+  notify:
+    - restart mongodb exporter
+
 - name: Create systemd service file
   template:
     src: mongodb_exporter.service.j2
