@@ -117,14 +117,14 @@
 
 - name: stat binary file
   stat:
-    path: "/tmp/mongodb_exporter-{{ mongodb_exporter_version }}.{{ ansible_system |lower }}-amd64/mongodb_exporter"
+    path: "/tmp/mongodb_exporter-{{ mongodb_exporter_version }}.{{ ansible_system |lower }}-{{ mongodb_exporter_arch }}/mongodb_exporter"
   register: binary
 
 - name: Rename binary (version > 0.20.0)
   command:
     argv:
       - mv
-      - "/tmp/mongodb_exporter-{{ mongodb_exporter_version }}.{{ ansible_system |lower }}-amd64/mongodb_exporter"
+      - "/tmp/mongodb_exporter-{{ mongodb_exporter_version }}.{{ ansible_system |lower }}-{{ mongodb_exporter_arch }}/mongodb_exporter"
       - "{{ mongodb_exporter_bin_dir.dest }}/mongodb_exporter"
   when: binary.stat.exists and (mongodb_exporter_version is version('0.20.0', '>'))
 

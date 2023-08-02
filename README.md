@@ -34,8 +34,10 @@ An Ansible role which installs and configures Prometheus MongoDB Exporter by Per
 mongodb_exporter_version: 0.7.0
 # Exporter repository URL
 mongodb_exporter_base_url: https://github.com/percona/mongodb_exporter
+# Exporter binary architecture
+mongodb_exporter_arch: amd64
 # Exporter download URL
-mongodb_exporter_release_url: "{{ mongodb_exporter_base_url }}/releases/download/v{{ mongodb_exporter_version }}/mongodb_exporter-{{ mongodb_exporter_version }}.{{ ansible_system |lower }}-amd64.tar.gz"
+mongodb_exporter_release_url: "{{ mongodb_exporter_base_url }}/releases/download/v{{ mongodb_exporter_version }}/mongodb_exporter-{{ mongodb_exporter_version }}.{{ ansible_system |lower }}-{{ mongodb_exporter_arch }}.tar.gz"
 
 # OS user to run exporter under
 mongodb_exporter_system_user: mongodb_exporter
