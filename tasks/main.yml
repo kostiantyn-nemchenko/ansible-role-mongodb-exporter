@@ -13,6 +13,7 @@
 - name: Add system groups
   group:
     name: "{{ item }}"
+    system: true
   with_items:
     - "{{ mongodb_exporter_system_groups }}"
 
@@ -21,6 +22,7 @@
     name: "{{ mongodb_exporter_system_user }}"
     groups: "{{ mongodb_exporter_system_groups }}"
     shell: "/usr/sbin/nologin"
+    system: true
     createhome: false
 
 - name: Ensure directories for binary and env file are present
